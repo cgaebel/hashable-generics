@@ -54,7 +54,7 @@ import GHC.Generics
 -- > instance Hashable a => Hashable (Bar a) where hashWithSalt = gHashWithSalt
 --
 -- Note: The 'GHashable' type-class showing up in the type-signature is
---       used internally and not exported on purpose currently
+--       used internally and not exported on purpose.
 gHashWithSalt :: (Generic a, GHashable (Rep a)) => Int -> a -> Int
 gHashWithSalt salt x = gHashWithSalt_ salt $ from x
 {-# INLINE gHashWithSalt #-}
@@ -88,8 +88,6 @@ instance (GHashable a, GHashable b) => GHashable (a :*: b) where
     gHashWithSalt_ !salt (x :*: y) = gHashWithSalt_ (gHashWithSalt_ salt x) y
     {-# INLINE gHashWithSalt_ #-}
 
--- This instance is suboptimal (with the salt+1 hackery). Is there a better way
--- to be doing this so that both choices can be unique?
 instance (GHashable a, GHashable b) => GHashable (a :+: b) where
     gHashWithSalt_ !salt (L1 x) = gHashWithSalt_ (salt `combine` 0) x
     gHashWithSalt_ !salt (R1 x) = gHashWithSalt_ (salt `combine` distinguisher) x
