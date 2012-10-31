@@ -7,7 +7,9 @@ import Test.Framework
 import Test.Framework.Providers.QuickCheck2
 import Test.QuickCheck
 
+import Data.Hashable
 import Data.Hashable.Generic
+import Data.Word
 
 import GHC.Generics
 
@@ -21,6 +23,13 @@ tests = [ testGroup "Documentation"
             , testProperty "Parametric and Recursive Type" paraRecursive
             ]
         ]
+
+-- | A value with bit pattern (01)* (or 5* in hexa), for any size of Int.
+--   It is used as data constructor distinguisher. GHC computes its value during
+--   compilation.
+distinguisher :: Int
+distinguisher = fromIntegral $ (maxBound :: Word) `quot` 3
+{-# INLINE distinguisher #-}
 
 data FooA = FooA AccountId Name Address
     deriving (Generic, Show)
@@ -67,8 +76,8 @@ instance Hashable NA where
     hashWithSalt = gHashWithSalt
 
 instance Hashable NB where
-    hashWithSalt !salt ZB      = hashWithSalt salt ()
-    hashWithSalt !salt (SB xs) = hashWithSalt (salt+1) xs
+    hashWithSalt !salt ZB      = hashWithSalt (salt `combine` 0) ()
+    hashWithSalt !salt (SB xs) = hashWithSalt (salt `combine` distinguisher) xs
 
 instance Arbitrary NA where
     arbitrary = lst2A <$> arbitrary
@@ -100,9 +109,9 @@ instance Hashable a => Hashable (BarA a) where
     hashWithSalt = gHashWithSalt
 
 instance Hashable a => Hashable (BarB a) where
-    hashWithSalt !salt BarB0 = hashWithSalt salt ()
-    hashWithSalt !salt (BarB1 x) = hashWithSalt (salt+1) x
-    hashWithSalt !salt (BarB2 x) = hashWithSalt (salt+2) x
+    hashWithSalt !salt BarB0 = hashWithSalt (salt `combine` 0) ()
+    hashWithSalt !salt (BarB1 x) = hashWithSalt (salt `combine` distinguisher `combine` 0) x
+    hashWithSalt !salt (BarB2 x) = hashWithSalt (salt `combine` distinguisher `combine` distinguisher) x
 
 barA2B :: BarA a -> BarB a
 barA2B BarA0 = BarB0

@@ -9,6 +9,7 @@ module Data.Hashable.Generic ( gHashWithSalt
                              ) where
 
 import Data.Hashable
+import Data.Word
 import GHC.Generics
 
 -- | "GHC.Generics"-based 'hashWithSalt' implementation
@@ -58,6 +59,15 @@ gHashWithSalt :: (Generic a, GHashable (Rep a)) => Int -> a -> Int
 gHashWithSalt salt x = gHashWithSalt_ salt $ from x
 {-# INLINE gHashWithSalt #-}
 
+-- | A value with bit pattern (01)* (or 5* in hexa), for any size of Int.
+--   It is used as data constructor distinguisher. GHC computes its value during
+--   compilation.
+--
+--   Blatantly stolen from @hashable@.
+distinguisher :: Int
+distinguisher = fromIntegral $ (maxBound :: Word) `quot` 3
+{-# INLINE distinguisher #-}
+
 -- | Hidden internal type class.
 class GHashable f where
     gHashWithSalt_ :: Int -> f a -> Int
@@ -81,6 +91,6 @@ instance (GHashable a, GHashable b) => GHashable (a :*: b) where
 -- This instance is suboptimal (with the salt+1 hackery). Is there a better way
 -- to be doing this so that both choices can be unique?
 instance (GHashable a, GHashable b) => GHashable (a :+: b) where
-    gHashWithSalt_ !salt (L1 x) = gHashWithSalt_ salt     x
-    gHashWithSalt_ !salt (R1 x) = gHashWithSalt_ (salt+1) x
+    gHashWithSalt_ !salt (L1 x) = gHashWithSalt_ (salt `combine` 0) x
+    gHashWithSalt_ !salt (R1 x) = gHashWithSalt_ (salt `combine` distinguisher) x
     {-# INLINE gHashWithSalt_ #-}
