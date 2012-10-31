@@ -39,3 +39,4 @@ test-suite tests
                        , test-framework-quickcheck2
                        , QuickCheck
                        , hashable-generics
+
