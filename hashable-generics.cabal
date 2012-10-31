@@ -18,7 +18,7 @@ maintainer:          cgaebel@uwaterloo.ca
 category:            Data
 build-type:          Simple
 cabal-version:       >=1.8
-tested-with:         GHC >=7.6
+tested-with:         GHC >=7.4
 
 source-repository head
     type: git
@@ -28,6 +28,7 @@ library
     exposed-modules:     Data.Hashable.Generic
     build-depends:       base >=4.5 && <4.7
                        , hashable ==1.1.*
+                       , ghc-prim
 
 test-suite tests
     type: exitcode-stdio-1.0
@@ -39,3 +40,4 @@ test-suite tests
                        , test-framework-quickcheck2
                        , QuickCheck
                        , hashable-generics
+                       , ghc-prim
