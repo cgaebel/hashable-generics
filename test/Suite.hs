@@ -73,7 +73,7 @@ data NA = ZA | SA NA
 data NB = ZB | SB NB
 
 instance Hashable NA where
-    hashWithSalt = gHashWithSalt
+    hashWithSalt s x = gHashWithSalt s x
 
 instance Hashable NB where
     hashWithSalt !salt ZB      = hashWithSalt (salt `combine` 0) ()
@@ -106,7 +106,7 @@ instance Arbitrary a => Arbitrary (BarA a) where
                       ]
 
 instance Hashable a => Hashable (BarA a) where
-    hashWithSalt = gHashWithSalt
+    hashWithSalt s x = gHashWithSalt s x
 
 instance Hashable a => Hashable (BarB a) where
     hashWithSalt !salt BarB0 = hashWithSalt (salt `combine` 0) ()

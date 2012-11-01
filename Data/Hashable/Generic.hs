@@ -1,9 +1,6 @@
 {-# LANGUAGE TypeOperators, FlexibleContexts, BangPatterns #-}
 -- | Stability:   stable
 --   Portability: GHC
---
---   NOTE: This module exports the Hashable class for convenience. If this
---         becomes a problem, just use a qualified import.
 module Data.Hashable.Generic ( gHashWithSalt
                              , Hashable(..)
                              ) where
@@ -39,24 +36,33 @@ import GHC.Generics
 -- > type Name         = String
 -- > newtype AccountId = AccountId Int
 -- >
+-- > -- Note: Even though gHashWithSalt could be curried, we explicitly list
+-- > --       the parameters. If you don't do this, GHC will not inline the
+-- > --       definition of gHashWithSalt, and the performance will not match
+-- > --       a non-generic implementation. If you use this method, the generic
+-- > --       hashWithSalt will generate the exact same code as a hand-rolled
+-- > --       one.
 -- > instance Hashable AccountId
--- > instance Hashable Foo where hashWithSalt = gHashWithSalt
+-- > instance Hashable Foo where
+-- >     hashWithSalt s x = gHashWithSalt s x
 -- >
 -- > -- recursive list-like type
 -- > data N = Z | S N deriving Generic
 -- >
--- > instance Hashable N where hashWithSalt = gHashWithSalt
+-- > instance Hashable N where
+-- >     hashWithSalt s x = gHashWithSalt s x
 -- >
 -- > -- parametric and recursive type
 -- > data Bar a = Bar0 | Bar1 a | Bar2 (Bar a)
 -- >            deriving Generic
 -- >
--- > instance Hashable a => Hashable (Bar a) where hashWithSalt = gHashWithSalt
+-- > instance Hashable a => Hashable (Bar a) where
+-- >     hashWithSalt s x = gHashWithSalt s x
 --
 -- Note: The 'GHashable' type-class showing up in the type-signature is
 --       used internally and not exported on purpose.
 gHashWithSalt :: (Generic a, GHashable (Rep a)) => Int -> a -> Int
-gHashWithSalt salt x = gHashWithSalt_ salt $ from x
+gHashWithSalt = gHashWithSalt_ salt $ from x
 {-# INLINE gHashWithSalt #-}
 
 -- | A value with bit pattern (01)* (or 5* in hexa), for any size of Int.
@@ -73,7 +79,7 @@ class GHashable f where
     gHashWithSalt_ :: Int -> f a -> Int
 
 instance GHashable U1 where
-    gHashWithSalt_ !salt U1 = hashWithSalt salt ()
+    gHashWithSalt_ salt _ = hashWithSalt salt ()
     {-# INLINE gHashWithSalt_ #-}
 
 instance Hashable a => GHashable (K1 i a) where
