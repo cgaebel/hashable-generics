@@ -4,3 +4,10 @@ notifications:
     - cg.wowus.cg@gmail.com
   on_success: always
   on_failure: always
+before_install:
+install:
+    - cabal install --only-dependencies
+    - cabal configure --enable-tests --enable-benchmarks
+    - cabal build
+    - cabal test
+    - cabal bench

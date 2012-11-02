@@ -62,7 +62,7 @@ import GHC.Generics
 -- Note: The 'GHashable' type-class showing up in the type-signature is
 --       used internally and not exported on purpose.
 gHashWithSalt :: (Generic a, GHashable (Rep a)) => Int -> a -> Int
-gHashWithSalt = gHashWithSalt_ salt $ from x
+gHashWithSalt salt x = gHashWithSalt_ salt $ from x
 {-# INLINE gHashWithSalt #-}
 
 -- | A value with bit pattern (01)* (or 5* in hexa), for any size of Int.

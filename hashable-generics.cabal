@@ -1,5 +1,5 @@
 name:                hashable-generics
-version:             1.1.4
+version:             1.1.5
 synopsis:            Automatically generates Hashable instances with GHC.Generics.
 description:
     This package provides a "GHC.Generics"-based 'Data.Hashable.Generic.gHashWithSalt'
@@ -36,8 +36,18 @@ test-suite tests
     hs-source-dirs: test
     build-depends:       base
                        , hashable
-                       , test-framework
-                       , test-framework-quickcheck2
-                       , QuickCheck
+                       , test-framework ==0.6.*
+                       , test-framework-quickcheck2 ==0.2.*
+                       , QuickCheck ==2.5.*
                        , hashable-generics
                        , ghc-prim
+
+benchmark compare-to-handrolled
+    type: exitcode-stdio-1.0
+    hs-source-dirs: bench
+    main-is: Bench.hs
+    build-depends: base
+                 , hashable
+                 , hashable-generics
+                 , ghc-prim
+                 , criterion ==0.6.*
