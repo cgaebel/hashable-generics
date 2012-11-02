@@ -9,7 +9,7 @@ description:
     .
     This package is heavily inspired by deepseq-generics, which you may also find
     useful.
-homepage:            https//github.com/wowus/hashable-generics
+homepage:            https://github.com/wowus/hashable-generics
 license:             BSD3
 license-file:        LICENSE
 author:              Clark Gaebel
