@@ -51,7 +51,8 @@ instance Arbitrary AccountId where
     arbitrary = AccountId <$> arbitrary
 
 instance Hashable FooA where
-    hashWithSalt = gHashWithSalt
+    hashWithSalt s x = gHashWithSalt s x
+    {-# INLINEABLE hashWithSalt #-}
 
 instance Hashable FooB where
     hashWithSalt salt (FooB ac n ad) = hashWithSalt
@@ -74,6 +75,7 @@ data NB = ZB | SB NB
 
 instance Hashable NA where
     hashWithSalt s x = gHashWithSalt s x
+    {-# INLINEABLE hashWithSalt #-}
 
 instance Hashable NB where
     hashWithSalt !salt ZB      = hashWithSalt (salt `combine` 0) ()
@@ -107,6 +109,7 @@ instance Arbitrary a => Arbitrary (BarA a) where
 
 instance Hashable a => Hashable (BarA a) where
     hashWithSalt s x = gHashWithSalt s x
+    {-# INLINEABLE hashWithSalt #-}
 
 instance Hashable a => Hashable (BarB a) where
     hashWithSalt !salt BarB0 = hashWithSalt (salt `combine` 0) ()

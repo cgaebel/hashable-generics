@@ -7,6 +7,7 @@ module Data.Hashable.Generic ( gHashWithSalt
 
 import Data.Hashable
 import Data.Word
+import GHC.Exts
 import GHC.Generics
 
 -- | "GHC.Generics"-based 'hashWithSalt' implementation
@@ -42,15 +43,22 @@ import GHC.Generics
 -- > --       a non-generic implementation. If you use this method, the generic
 -- > --       hashWithSalt will generate the exact same code as a hand-rolled
 -- > --       one.
+-- > --
+-- > --       Also, the INLINEABLE pragma is there to help hashable data
+-- > --       structures in other modules write more efficient generic hashable
+-- > --       instances too. This is the best way to get extremely performant,
+-- > --       fully generic hash functions.
 -- > instance Hashable AccountId
 -- > instance Hashable Foo where
 -- >     hashWithSalt s x = gHashWithSalt s x
+-- >     {-# INLINEABLE hashWithSalt #-}
 -- >
 -- > -- recursive list-like type
 -- > data N = Z | S N deriving Generic
 -- >
 -- > instance Hashable N where
 -- >     hashWithSalt s x = gHashWithSalt s x
+-- >     {-# INLINEABLE hashWithSalt #-}
 -- >
 -- > -- parametric and recursive type
 -- > data Bar a = Bar0 | Bar1 a | Bar2 (Bar a)
@@ -58,11 +66,13 @@ import GHC.Generics
 -- >
 -- > instance Hashable a => Hashable (Bar a) where
 -- >     hashWithSalt s x = gHashWithSalt s x
+-- >     {-# INLINEABLE hashWithSalt #-}
 --
 -- Note: The 'GHashable' type-class showing up in the type-signature is
 --       used internally and not exported on purpose.
 gHashWithSalt :: (Generic a, GHashable (Rep a)) => Int -> a -> Int
-gHashWithSalt salt x = gHashWithSalt_ salt $ from x
+gHashWithSalt salt x = let x' = from x
+                        in inline $ gHashWithSalt_ salt x'
 {-# INLINE gHashWithSalt #-}
 
 -- | A value with bit pattern (01)* (or 5* in hexa), for any size of Int.
@@ -72,29 +82,30 @@ gHashWithSalt salt x = gHashWithSalt_ salt $ from x
 --   Blatantly stolen from @hashable@.
 distinguisher :: Int
 distinguisher = fromIntegral $ (maxBound :: Word) `quot` 3
-{-# INLINE distinguisher #-}
+{-# INLINEABLE distinguisher #-}
 
 -- | Hidden internal type class.
 class GHashable f where
     gHashWithSalt_ :: Int -> f a -> Int
 
 instance GHashable U1 where
-    gHashWithSalt_ salt _ = hashWithSalt salt ()
-    {-# INLINE gHashWithSalt_ #-}
+    gHashWithSalt_ salt _ = inline $ hashWithSalt salt ()
+    {-# INLINEABLE gHashWithSalt_ #-}
 
 instance Hashable a => GHashable (K1 i a) where
-    gHashWithSalt_ !salt = hashWithSalt salt . unK1
-    {-# INLINE gHashWithSalt_ #-}
+    gHashWithSalt_ !salt x = let x' = unK1 x
+                              in inline $ hashWithSalt salt x'
+    {-# INLINEABLE gHashWithSalt_ #-}
 
 instance GHashable a => GHashable (M1 i c a) where
     gHashWithSalt_ !salt = gHashWithSalt_ salt . unM1
-    {-# INLINE gHashWithSalt_ #-}
+    {-# INLINEABLE gHashWithSalt_ #-}
 
 instance (GHashable a, GHashable b) => GHashable (a :*: b) where
     gHashWithSalt_ !salt (x :*: y) = gHashWithSalt_ (gHashWithSalt_ salt x) y
-    {-# INLINE gHashWithSalt_ #-}
+    {-# INLINEABLE gHashWithSalt_ #-}
 
 instance (GHashable a, GHashable b) => GHashable (a :+: b) where
-    gHashWithSalt_ !salt (L1 x) = gHashWithSalt_ (salt `combine` 0) x
-    gHashWithSalt_ !salt (R1 x) = gHashWithSalt_ (salt `combine` distinguisher) x
-    {-# INLINE gHashWithSalt_ #-}
+    gHashWithSalt_ !salt (L1 x) = gHashWithSalt_ (inline $ combine salt 0) x
+    gHashWithSalt_ !salt (R1 x) = gHashWithSalt_ (inline $ combine salt distinguisher) x
+    {-# INLINEABLE gHashWithSalt_ #-}
