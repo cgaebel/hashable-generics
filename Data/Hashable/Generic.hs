@@ -1,7 +1,12 @@
 {-# LANGUAGE TypeOperators, FlexibleContexts, BangPatterns #-}
 {-# OPTIONS_GHC -Wall #-}
--- | Stability:   stable
---   Portability: GHC
+-- |
+-- Module:      Data.Hashable.Generic
+-- Copyright:   (c) Clark Gaebel 2012
+-- License:     BSD-style
+-- Maintainer:  cgaebel@uwaterloo.ca
+-- Stability:   stable
+-- Portability: GHC
 module Data.Hashable.Generic ( gHashWithSalt
                              , Hashable(..)
                              ) where
