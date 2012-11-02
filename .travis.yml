@@ -8,6 +8,5 @@ install:
     - cabal install --only-dependencies --enable-tests --enable-benchmarks
     - cabal configure --enable-tests --enable-benchmarks
     - cabal build
-    - cabal test
+    - cabal test --show-details=always
     - cabal bench
-    - cat "dist/test/hashable-generics-*-tests.log"
