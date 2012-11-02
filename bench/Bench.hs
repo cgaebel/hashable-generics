@@ -38,7 +38,22 @@ bigHandRolledDS = let a = HR0
                       i = HR2 e f
                       j = HR2 g h
                       k = HR2 i j
-                   in HR2 k k
+                      l = HR2 k k
+                      m = HR2 l l
+                      n = HR2 m m
+                      o = HR2 n n
+                      p = HR2 o o
+                      q = HR2 p p
+                      r = HR2 q q
+                      s = HR2 r r
+                      t = HR2 s s
+                      u = HR2 t t
+                      v = HR2 u u
+                      w = HR2 v v
+                      x = HR2 w w
+                      y = HR2 x x
+                      z = HR2 y y
+                   in z
 
 bigGenericRolledDS :: GenericRolled
 bigGenericRolledDS = f bigHandRolledDS
