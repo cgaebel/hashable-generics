@@ -78,7 +78,7 @@ instance Hashable NA where
     {-# INLINEABLE hashWithSalt #-}
 
 instance Hashable NB where
-    hashWithSalt !salt ZB      = hashWithSalt (salt `combine` 0) ()
+    hashWithSalt !salt ZB      = combine salt 0
     hashWithSalt !salt (SB xs) = hashWithSalt (salt `combine` distinguisher) xs
 
 instance Arbitrary NA where
@@ -112,7 +112,7 @@ instance Hashable a => Hashable (BarA a) where
     {-# INLINEABLE hashWithSalt #-}
 
 instance Hashable a => Hashable (BarB a) where
-    hashWithSalt !salt BarB0 = hashWithSalt (salt `combine` 0) ()
+    hashWithSalt !salt BarB0 = salt `combine` 0
     hashWithSalt !salt (BarB1 x) = hashWithSalt (salt `combine` distinguisher `combine` 0) x
     hashWithSalt !salt (BarB2 x) = hashWithSalt (salt `combine` distinguisher `combine` distinguisher) x
 

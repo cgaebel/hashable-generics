@@ -24,7 +24,6 @@ instance Hashable HandRolled where
 
 instance Hashable GenericRolled where
     hashWithSalt s x = gHashWithSalt s x
-    {-# INLINABLE hashWithSalt #-}
 
 bigHandRolledDS :: HandRolled
 bigHandRolledDS = let a = HR0
@@ -53,7 +52,12 @@ bigHandRolledDS = let a = HR0
                       x = HR2 w w
                       y = HR2 x x
                       z = HR2 y y
-                   in z
+                      za = HR2 z z
+                      zb = HR2 za za
+                      zc = HR2 zb zb
+                      zd = HR2 zc zc
+                      ze = HR2 zd zd
+                   in ze
 
 bigGenericRolledDS :: GenericRolled
 bigGenericRolledDS = f bigHandRolledDS

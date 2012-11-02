@@ -1,4 +1,5 @@
 {-# LANGUAGE TypeOperators, FlexibleContexts, BangPatterns #-}
+{-# OPTIONS_GHC -Wall #-}
 -- | Stability:   stable
 --   Portability: GHC
 module Data.Hashable.Generic ( gHashWithSalt
@@ -7,7 +8,6 @@ module Data.Hashable.Generic ( gHashWithSalt
 
 import Data.Hashable
 import Data.Word
-import GHC.Exts
 import GHC.Generics
 
 -- | "GHC.Generics"-based 'hashWithSalt' implementation
@@ -68,10 +68,14 @@ import GHC.Generics
 -- >     hashWithSalt s x = gHashWithSalt s x
 -- >     {-# INLINEABLE hashWithSalt #-}
 --
+-- I intend for 'gHashWithSalt' to be just as fast as a hand-rolled
+-- implementation. Benchmarks are currently showing a 1.3x slowdown. Patches
+-- to improve performance are welcome!
+--
 -- Note: The 'GHashable' type-class showing up in the type-signature is
 --       used internally and not exported on purpose.
 gHashWithSalt :: (Generic a, GHashable (Rep a)) => Int -> a -> Int
-gHashWithSalt salt x = gHashWithSalt_ salt $ from x
+gHashWithSalt salt = gHashWithSalt_ salt . from
 {-# INLINE gHashWithSalt #-}
 
 -- | A value with bit pattern (01)* (or 5* in hexa), for any size of Int.
@@ -81,30 +85,29 @@ gHashWithSalt salt x = gHashWithSalt_ salt $ from x
 --   Blatantly stolen from @hashable@.
 distinguisher :: Int
 distinguisher = fromIntegral $ (maxBound :: Word) `quot` 3
-{-# INLINEABLE distinguisher #-}
+{-# INLINE distinguisher #-}
 
 -- | Hidden internal type class.
 class GHashable f where
     gHashWithSalt_ :: Int -> f a -> Int
 
 instance GHashable U1 where
-    gHashWithSalt_ salt _ = inline $ hashWithSalt salt ()
-    {-# INLINEABLE gHashWithSalt_ #-}
+    gHashWithSalt_ = const
+    {-# INLINE gHashWithSalt_ #-}
 
 instance Hashable a => GHashable (K1 i a) where
-    gHashWithSalt_ !salt x = let x' = unK1 x
-                              in inline $ hashWithSalt salt x'
-    {-# INLINEABLE gHashWithSalt_ #-}
+    gHashWithSalt_ salt = hashWithSalt salt . unK1
+    {-# INLINE gHashWithSalt_ #-}
 
 instance GHashable a => GHashable (M1 i c a) where
-    gHashWithSalt_ !salt = gHashWithSalt_ salt . unM1
-    {-# INLINEABLE gHashWithSalt_ #-}
+    gHashWithSalt_ salt = gHashWithSalt_ salt . unM1
+    {-# INLINE gHashWithSalt_ #-}
 
 instance (GHashable a, GHashable b) => GHashable (a :*: b) where
-    gHashWithSalt_ !salt (x :*: y) = gHashWithSalt_ (gHashWithSalt_ salt x) y
-    {-# INLINEABLE gHashWithSalt_ #-}
+    gHashWithSalt_ salt (x :*: y) = gHashWithSalt_ (gHashWithSalt_ salt x) y
+    {-# INLINE gHashWithSalt_ #-}
 
 instance (GHashable a, GHashable b) => GHashable (a :+: b) where
-    gHashWithSalt_ !salt (L1 x) = gHashWithSalt_ (inline $ combine salt 0) x
-    gHashWithSalt_ !salt (R1 x) = gHashWithSalt_ (inline $ combine salt distinguisher) x
-    {-# INLINEABLE gHashWithSalt_ #-}
+    gHashWithSalt_ !salt (L1 x) = gHashWithSalt_ (combine salt 0) x
+    gHashWithSalt_ !salt (R1 x) = gHashWithSalt_ (combine salt distinguisher) x
+    {-# INLINE gHashWithSalt_ #-}
