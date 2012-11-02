@@ -21,6 +21,8 @@ tests = [ testGroup "Documentation"
             [ testProperty "Simple Record" simpleRecord
             , testProperty "Recursive Type" recursiveType
             , testProperty "Parametric and Recursive Type" paraRecursive
+            , testProperty "Different values => different hash. This can fail rarely, but not usually."
+                $ \x y -> x /= y ==> not (haveSameHash x y)
             ]
         ]
 
@@ -97,7 +99,7 @@ recursiveType a = let b = na2nb a
                    in hash a == hash b
 
 data BarA a = BarA0 | BarA1 a | BarA2 (BarA a)
-    deriving (Generic, Show)
+    deriving (Generic, Show, Eq)
 
 data BarB a = BarB0 | BarB1 a | BarB2 (BarB a)
 
@@ -124,3 +126,6 @@ barA2B (BarA2 x) = BarB2 $ barA2B x
 paraRecursive :: BarA Int -> Bool
 paraRecursive a = let b = barA2B a
                    in hash a == hash b
+
+haveSameHash :: BarA Int -> BarA Int -> Bool
+haveSameHash x y = hash x == hash y
