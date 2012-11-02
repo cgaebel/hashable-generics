@@ -6,4 +6,4 @@ See the documentation for the 'gHashWithSalt' function in the
 "Data.Hashable.Generic" module to get started.
 
 This package is heavily inspired by deepseq-generics, which you may also find
-useful. 
+useful.
