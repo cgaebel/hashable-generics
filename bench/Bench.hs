@@ -56,8 +56,7 @@ bigHandRolledDS = let a = HR0
                       zb = HR2 za za
                       zc = HR2 zb zb
                       zd = HR2 zc zc
-                      ze = HR2 zd zd
-                   in ze
+                   in zd
 
 bigGenericRolledDS :: GenericRolled
 bigGenericRolledDS = f bigHandRolledDS
