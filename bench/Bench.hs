@@ -59,11 +59,37 @@ bigHandRolledDS = let a = HR0
                    in zd
 
 bigGenericRolledDS :: GenericRolled
-bigGenericRolledDS = f bigHandRolledDS
-    where
-        f HR0       = GR0
-        f (HR1 x)   = GR1 x
-        f (HR2 x y) = GR2 (f x) (f y)
+bigGenericRolledDS = let a = GR0
+                         b = GR1 $ Just 1
+                         c = GR1 $ Nothing
+                         d = GR1 $ Just 3
+                         e = GR2 a b
+                         f = GR2 c d
+                         g = GR2 e e
+                         h = GR2 f f
+                         i = GR2 e f
+                         j = GR2 g h
+                         k = GR2 i j
+                         l = GR2 k k
+                         m = GR2 l l
+                         n = GR2 m m
+                         o = GR2 n n
+                         p = GR2 o o
+                         q = GR2 p p
+                         r = GR2 q q
+                         s = GR2 r r
+                         t = GR2 s s
+                         u = GR2 t t
+                         v = GR2 u u
+                         w = GR2 v v
+                         x = GR2 w w
+                         y = GR2 x x
+                         z = GR2 y y
+                         za = GR2 z z
+                         zb = GR2 za za
+                         zc = GR2 zb zb
+                         zd = GR2 zc zc
+                      in zd
 
 main :: IO ()
 main = defaultMain [ bcompare [ bench "handrolled" $ whnf hash bigHandRolledDS

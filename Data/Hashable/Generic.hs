@@ -73,10 +73,6 @@ import GHC.Generics
 -- >     hashWithSalt s x = gHashWithSalt s x
 -- >     {-# INLINEABLE hashWithSalt #-}
 --
--- I intend for 'gHashWithSalt' to be just as fast as a hand-rolled
--- implementation. Benchmarks are currently showing a 1.3x slowdown. Patches
--- to improve performance are welcome!
---
 -- Note: The 'GHashable' type-class showing up in the type-signature is
 --       used internally and not exported on purpose.
 gHashWithSalt :: (Generic a, GHashable (Rep a)) => Int -> a -> Int
