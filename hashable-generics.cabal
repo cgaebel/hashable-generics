@@ -1,6 +1,6 @@
 name:                hashable-generics
-version:             1.1.8
-synopsis:            Automatically generates Hashable instances with GHC.Generics.
+version:             1.1.9
+synopsis:            Automatically generates Hashable instances with GHC.Generics. WARNING: This has been merged into, and made obsolete by Data.Hashable version 1.2. Please use the built-in instances.
 description:
     This package provides a "GHC.Generics"-based 'Data.Hashable.Generic.gHashWithSalt'
     function which can be used for providing a 'hashWithSalt' implementation.
